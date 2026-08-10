@@ -1,0 +1,15 @@
+/* Font-specific customizations */
+
+/* Ensure optimal text rendering */
+@supports (font-variation-settings: normal) {
+  * {
+    font-variation-settings: "opsz" auto;
+  }
+}
+
+/* Smooth font rendering */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+} 

@@ -1,0 +1,73 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  nama      String
+  role      Role      @default(USER) // ADMIN atau USER
+  riwayat   Riwayat[]
+  createdAt DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Penyakit {
+  id          Int          @id @default(autoincrement())
+  kode        String       @unique // Contoh: P01
+  nama        String
+  deskripsi   String?      @db.Text
+  solusi      String?      @db.Text
+  rules       Rule[]
+  riwayat     RiwayatDetail[]
+  createdAt   DateTime     @default(now())
+}
+
+model Gejala {
+  id          Int      @id @default(autoincrement())
+  kode        String   @unique // Contoh: G01
+  nama        String
+  imageUrl    String?  // URL/path foto referensi gejala
+  rules       Rule[]
+  createdAt   DateTime @default(now())
+}
+
+model Rule {
+  id          Int      @id @default(autoincrement())
+  penyakitId  Int
+  gejalaId    Int
+  cfPakar     Float    // Nilai Certainty Factor dari pakar
+  penyakit    Penyakit @relation(fields: [penyakitId], references: [id])
+  gejala      Gejala   @relation(fields: [gejalaId], references: [id])
+
+  @@unique([penyakitId, gejalaId])
+}
+
+model Riwayat {
+  id          Int             @id @default(autoincrement())
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id])
+  hasil       RiwayatDetail[]
+  createdAt   DateTime        @default(now())
+}
+
+model RiwayatDetail {
+  id          Int      @id @default(autoincrement())
+  riwayatId   Int
+  penyakitId  Int
+  cfHasil     Float    // Nilai CF akhir hasil perhitungan
+  riwayat     Riwayat  @relation(fields: [riwayatId], references: [id])
+  penyakit    Penyakit @relation(fields: [penyakitId], references: [id])
+}
