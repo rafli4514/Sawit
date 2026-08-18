@@ -9,11 +9,12 @@ export interface CertaintyTermOption {
 }
 
 export const CERTAINTY_TERMS: CertaintyTermOption[] = [
-  { label: "Tidak", value: -0.25 },
-  { label: "Kemungkinan Tidak", value: 0 },
-  { label: "Tidak Tahu", value: 0.3 },
-  { label: "Kemungkinan Iya", value: 0.5 },
-  { label: "Iya", value: 0.7 },
+  { label: "Tidak", value: 0 },
+  { label: "Kemungkinan Tidak", value: 0.2 },
+  { label: "Ragu-Ragu", value: 0.4 },
+  { label: "Cukup Yakin", value: 0.6 },
+  { label: "Yakin", value: 0.8 },
+  { label: "Sangat Yakin", value: 1.0 },
 ];
 
 export function getCertaintyLabel(val: number): string {

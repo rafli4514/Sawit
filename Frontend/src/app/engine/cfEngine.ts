@@ -82,7 +82,13 @@ export function runDiagnosis(inputs: SymptomInput[], rules: Rule[], diseases: Di
     });
   }
 
-  diagnoses.sort((a, b) => b.cfScore - a.cfScore);
+  diagnoses.sort((a, b) => {
+    if (Math.abs(b.cfScore - a.cfScore) > 0.0001) {
+      return b.cfScore - a.cfScore;
+    }
+    // Jika skor CF sama besar (misal sama-sama 100%), prioritaskan penyakit dengan jumlah bukti/aturan aktif terbanyak
+    return b.rulesTraced.length - a.rulesTraced.length;
+  });
 
   const emergencyFlag = diagnoses.some((d) => d.severity === "high" && d.cfScore >= 0.7);
   const caseId = `KASUS-${Date.now().toString(36).toUpperCase()}`;

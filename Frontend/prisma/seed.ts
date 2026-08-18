@@ -6,10 +6,18 @@ const prisma = new PrismaClient()
 async function main() {
   const hashedPassword = await bcrypt.hash('admin123', 10)
 
+  console.log('🧹 Membersihkan seluruh data lama di database...')
+  // Bersihkan data relasi dan riwayat lama agar database 100% bersih
+  await prisma.riwayatDetail.deleteMany({})
+  await prisma.riwayat.deleteMany({})
+  await prisma.rule.deleteMany({})
+  await prisma.gejala.deleteMany({})
+  await prisma.penyakit.deleteMany({})
+
   // 1. Seed Admin
   await prisma.user.upsert({
     where: { email: 'admin@nyawit.com' },
-    update: {},
+    update: { password: hashedPassword },
     create: {
       email: 'admin@nyawit.com',
       nama: 'Super Admin',
@@ -18,39 +26,53 @@ async function main() {
     },
   })
 
-  // 2. Daftar Gejala
+  // 2. Daftar Tepat 38 Gejala Fisik Terpadu (Penyakit & Hama)
   const gejalaList = [
-    { kode: 'G01', nama: 'Daun menjadi layu / anak daun layu' },
-    { kode: 'G02', nama: 'Daun kekuningan / berubah warna menjadi hijau pucat atau kuning' },
+    // Bagian Daun & Pelepah (G01 - G14)
+    { kode: 'G01', nama: 'Daun menjadi layu / anak daun terkulai layu' },
+    { kode: 'G02', nama: 'Daun mengalami klorosis (menguning / hijau pucat)' },
     { kode: 'G03', nama: 'Daun timbul bercak-bercak lonjong berwarna kuning' },
-    { kode: 'G04', nama: 'Akar menjadi lunak' },
-    { kode: 'G05', nama: 'Busuk pada akar' },
-    { kode: 'G06', nama: 'Daun muda berubah warna / berwarna coklat di ujungnya' },
-    { kode: 'G07', nama: 'Daun rontok sebelum waktunya / pelepah rontok sebelum waktunya' },
-    { kode: 'G08', nama: 'Warna daun hijau pucat' },
-    { kode: 'G09', nama: 'Pelepah daun akan patah / sengkleh (patah pangkal pelepah)' },
-    { kode: 'G10', nama: 'Pelepah daun menggantung pada batang pohonnya' },
-    { kode: 'G11', nama: 'Daun muda (tombak) tidak membuka sepenuhnya / melengkung / tidak membuka secara total' },
-    { kode: 'G12', nama: 'Tumbuh jamur / badan buah jamur pada pangkal batang atau akar' },
-    { kode: 'G13', nama: 'Tanaman tumbang / roboh / pertumbuhan tanaman tidak normal' },
-    { kode: 'G14', nama: 'Kuncup membusuk / mengeluarkan aroma busuk pada pangkal jaringan' },
-    { kode: 'G15', nama: 'Kuncup mengeluarkan bau busuk' },
-    { kode: 'G16', nama: 'Pelepah bengkok / menunduk ke arah bawah di bagian tengahnya' },
-    { kode: 'G17', nama: 'Tanaman mengalami pertumbuhan yang lambat atau berhenti / kerdil' },
-    { kode: 'G18', nama: 'Daun mengalami dehidrasi / kering' },
-    { kode: 'G19', nama: 'Bercak berwarna kuning dan bagian tengahnya berwarna cokelat pada helaian daun' },
-    { kode: 'G20', nama: 'Daun berukuran kecil / daun tajuk tumbuh lebih kecil bukan tambah besar' },
-    { kode: 'G21', nama: 'Daun Sobek / helai daun tidak tumbuh' },
-    { kode: 'G22', nama: 'Helai daun tidak tumbuh / tidak ada sama sekali pada pelepah' },
-    { kode: 'G23', nama: 'Pelepah berwarna cokelat kemerahan' },
-    { kode: 'G24', nama: 'Jamur berwarna putih / rizomorf jamur berwarna putih pada permukaan buah' },
-    { kode: 'G25', nama: 'Buah menjadi kering / keriput' },
-    { kode: 'G26', nama: 'Pangkal buah busuk' },
-    { kode: 'G27', nama: 'Biji buah busuk / buah membusuk / rusak' },
-    { kode: 'G28', nama: 'Warna buah berubah menjadi kecoklatan' },
-    { kode: 'G29', nama: 'Warna buah berubah menjadi kehitaman' },
-    { kode: 'G30', nama: 'Biji buah menjadi rontok' },
-    { kode: 'G31', nama: 'Buah mengeluarkan bau busuk' }
+    { kode: 'G04', nama: 'Daun muda berwarna cokelat gelap hingga nekrosis di ujungnya' },
+    { kode: 'G05', nama: 'Pelepah daun patah / sengkleh dan menggantung pada batang' },
+    { kode: 'G06', nama: 'Pelepah bengkok / melengkung menunduk ke bawah di bagian tengahnya' },
+    { kode: 'G07', nama: 'Pelepah berubah warna menjadi cokelat kemerahan' },
+    { kode: 'G08', nama: 'Daun muda (tombak) tidak membuka total / tegak melengkung' },
+    { kode: 'G09', nama: 'Bercak kuning pada daun dengan bagian tengah berwarna cokelat' },
+    { kode: 'G10', nama: 'Daun berukuran kecil / tajuk baru tumbuh kerdil dan kaku' },
+    { kode: 'G11', nama: 'Daun sobek-sobek / helaian daun tidak berkembang normal' },
+    { kode: 'G12', nama: 'Daun mengalami dehidrasi berat / mengering kecokelatan' },
+    { kode: 'G13', nama: 'Daun atau pelepah gugur/rontok sebelum waktunya' },
+    { kode: 'G14', nama: 'Timbul bercak-bercak hitam atau cokelat pada daun bibit muda' },
+
+    // Bagian Kuncup, Titik Tumbuh, Batang & Akar (G15 - G22)
+    { kode: 'G15', nama: 'Kuncup/titik tumbuh membusuk basah dan mengeluarkan aroma bau busuk' },
+    { kode: 'G16', nama: 'Akar tanaman menjadi lunak, basah, dan jaringan korteks hancur membusuk' },
+    { kode: 'G17', nama: 'Tumbuh badan buah jamur (basidiokarp) kipas pada pangkal batang atau akar' },
+    { kode: 'G18', nama: 'Batang bagian atas (1-2 meter di atas tanah) membusuk dan patah (upper stem rot)' },
+    { kode: 'G19', nama: 'Batang tampak berongga dan terdapat serbuk kayu halus di pangkal batang' },
+    { kode: 'G20', nama: 'Lubang-lubang gerekan kecil pada batang kelapa sawit' },
+    { kode: 'G21', nama: 'Ditemukan sarang rayap / lorong tanah di sekitar perakaran dan pangkal batang' },
+    { kode: 'G22', nama: 'Tanaman roboh / tumbang / mati mendadak' },
+
+    // Bagian Bunga, Buah & Produktivitas (G23 - G28)
+    { kode: 'G23', nama: 'Rizomorf jamur berwarna putih / miselium menyelimuti tandan buah' },
+    { kode: 'G24', nama: 'Pangkal buah membusuk basah dan tandan buah rusak berbau busuk' },
+    { kode: 'G25', nama: 'Buah menjadi keriput, kering, dan gagal berkembang' },
+    { kode: 'G26', nama: 'Warna buah berubah kehitaman dan biji / brondolan rontok prematur' },
+    { kode: 'G27', nama: 'Tandan bunga atau bunga tombak tidak membuka / pembentukan bunga terhambat' },
+    { kode: 'G28', nama: 'Penurunan drastis produksi TBS (Tandan Buah Segar) mencapai 40% - 60%' },
+
+    // Gejala Khusus 4 Hama (G29 - G38 dari Jurnal Hanif dkk., 2026)
+    { kode: 'G29', nama: 'Kerusakan pada bibit kelapa sawit akibat gigitan hama pengerat' },
+    { kode: 'G30', nama: 'Bekas keratan gigi pengerat pada pangkal pelepah tanaman' },
+    { kode: 'G31', nama: 'Bekas gigitan pengerat pada buah mentah/masak hingga merusak inti sawit' },
+    { kode: 'G32', nama: 'Tanaman kelapa sawit mati akibat pengeratan pada titik tumbuh bibit' },
+    { kode: 'G33', nama: 'Helaian daun berlubang-lubang akibat gigitan ulat pemakan daun' },
+    { kode: 'G34', nama: 'Kerusakan parah pada daun bagian bawah tajuk hingga kehilangan >80% daun' },
+    { kode: 'G35', nama: 'Helaian daun terkikis habis hingga hanya tersisa tulang lidi (tajuk bawah abu-abu)' },
+    { kode: 'G36', nama: 'Daun tajuk bagian bawah tampak kering berwarna abu-abu kusam' },
+    { kode: 'G37', nama: 'Terdapat kantong-kantong ulat menggantung pada permukaan bawah pelepah' },
+    { kode: 'G38', nama: 'Helaian daun tidak utuh dan tampak rusak bergerigi akibat ulat kantong' },
   ]
 
   const dbGejala: Record<string, any> = {}
@@ -62,55 +84,81 @@ async function main() {
     })
   }
 
-  // 3. Daftar Penyakit
+  // 3. Daftar 12 Penyakit & Hama (HPT)
   const penyakitList = [
     {
       kode: 'P01',
       nama: 'Akar (Blast disease)',
       deskripsi: 'Penyakit yang menyerang perakaran tanaman kelapa sawit muda di pembibitan maupun tanaman dewasa, menyebabkan pembusukan akar dan menghambat penyerapan air dan nutrisi.',
-      solusi: 'Sanitasi Kebun: Untuk mencegah penyebaran patogen, tanaman yang terinfeksi parah harus dicabut dan dimusnahkan. Penggunaan Agen Hayati: Gunakan jamur yang bersifat antagonis, seperti Trichoderma, untuk menghentikan perkembangan patogen. Perbaikan Drainase: Pastikan sistem drainase yang baik untuk mencegah tanah terlalu lembab, yang dapat memicu pertumbuhan jamur patogen.'
+      solusi: 'Sanitasi Kebun: Untuk mencegah penyebaran patogen, tanaman yang terinfeksi parah harus dicabut dan dimusnahkan. Penggunaan Agen Hayati: Gunakan jamur antagonis Trichoderma untuk menghentikan patogen. Perbaikan Drainase: Pastikan sistem drainase baik untuk mencegah genangan air.'
     },
     {
       kode: 'P02',
       nama: 'Busuk Pangkal Batang (Ganoderma)',
-      deskripsi: 'Penyakit busuk pangkal batang yang paling mematikan bagi kelapa sawit dewasa disebabkan oleh jamur Ganoderma boninense.',
-      solusi: 'Penggunaan Bibit Sehat: Untuk mencegah penyebaran penyakit, tanam bibit yang tidak terinfeksi. Sanitasi dan Pemusnahan: Untuk mengurangi sumber inokulum, tanaman yang terinfeksi berat dibongkar dan dimusnahkan. Penggunaan Fungisida secara preventif pada tanaman sehat.'
+      deskripsi: 'Penyakit busuk pangkal batang yang paling mematikan bagi kelapa sawit dewasa disebabkan oleh jamur Ganoderma boninense / lucidum.',
+      solusi: 'Penggunaan Bibit Sehat: Tanam bibit yang telah teruji resisten. Sanitasi dan Pemusnahan: Bongkar dan musnahkan tanaman yang terinfeksi berat. Penggunaan Fungisida heksakonazol atau tabur Trichoderma harzianum.'
     },
     {
       kode: 'P03',
       nama: 'Busuk Kuncup (Spear rot)',
       deskripsi: 'Penyakit yang menyerang bagian kuncup daun muda (tombak) kelapa sawit sehingga membusuk dan tidak membuka dengan normal.',
-      solusi: 'Pemangkasan Bagian Terinfeksi: Potong bagian kuncup yang membusuk untuk mencegah penyebaran infeksi lebih lanjut. Oleskan fungisida yang sesuai di area potongan dan sekelilingnya. Tingkatkan aerasi kebun.'
+      solusi: 'Pemangkasan Bagian Terinfeksi: Potong bagian kuncup yang membusuk untuk mencegah penyebaran infeksi. Oleskan fungisida tembaga di area potongan. Tingkatkan aerasi kebun.'
     },
     {
       kode: 'P04',
       nama: 'Garis Kuning (Patch yellow)',
       deskripsi: 'Penyakit bercak daun atau garis kuning pada kelapa sawit yang menyerang helaian daun akibat infeksi jamur Fusarium oxysporum.',
-      solusi: 'Gunakan bibit yang resisten. Lakukan pemangkasan pelepah yang sakit secara rutin dan bakar sisa tanaman untuk sanitasi lahan.'
+      solusi: 'Gunakan bibit yang resisten. Lakukan pemangkasan pelepah yang sakit secara rutin dan berikan pemupukan kalium (KCl/MOP) secara seimbang.'
     },
     {
       kode: 'P05',
       nama: 'Tajuk (Crown disease)',
-      deskripsi: 'Penyakit gangguan pertumbuhan tajuk tanaman muda di mana pelepah tumbuh membengkok, rapuh, atau tidak terbentuk secara utuh.',
-      solusi: 'Identifikasi penyebab spesifik (apakah faktor nutrisi, hama, atau patogen). Lakukan pemupukan seimbang (terutama K, B, dan Mg) serta pembersihan gulma di sekitar piringan.'
+      deskripsi: 'Penyakit gangguan pertumbuhan tajuk tanaman muda di mana pelepah tumbuh membengkok, rapuh, atau tidak terbentuk secara utuh akibat faktor genetis atau fisiologis.',
+      solusi: 'Lakukan pemupukan seimbang (terutama K, B, dan Mg) serta pembersihan gulma di sekitar piringan.'
     },
     {
       kode: 'P06',
-      nama: 'Busuk Tandan (Marasmius)',
+      nama: 'Busuk Tandan (Bunch rot / Marasmius)',
       deskripsi: 'Penyakit pembusukan buah atau tandan kelapa sawit yang disebabkan oleh jamur Marasmius palmivorus.',
-      solusi: 'Lakukan penyerbukan buatan secara efektif untuk mengurangi bunga jantan yang membusuk. Lakukan pemangkasan pelepah mati, pembersihan buah busuk dari pohon, dan semprot dengan fungisida tembaga jika serangan parah.'
+      solusi: 'Lakukan penyerbukan buatan secara efektif. Lakukan pemangkasan pelepah mati, sanitasi buah busuk, dan semprot dengan fungisida tembaga jika serangan parah.'
     },
     {
       kode: 'P07',
-      nama: 'Anthracnose',
-      deskripsi: 'Penyakit bercak daun pada bibit kelapa sawit yang disebabkan oleh kompleks jamur Melanconium, Glomerella, atau Botryodiplodia.',
-      solusi: 'Pencegahan dengan menjaga kelembaban pembibitan agar tidak terlalu basah. Lakukan pemisahan/karantina bibit bergejala dan semprotkan fungisida kontak berbahan aktif mankozeb atau fungisida sistemik.'
+      nama: 'Anthracnose & Bercak Daun',
+      deskripsi: 'Penyakit bercak daun pada bibit kelapa sawit yang disebabkan oleh kompleks jamur Melanconium elaedis, Glomerella, atau Botryodiplodia.',
+      solusi: 'Pencegahan dengan menjaga kelembaban pembibitan. Lakukan karantina bibit bergejala dan semprotkan fungisida kontak berbahan aktif mankozeb (Dithane M-45).'
     },
     {
       kode: 'P08',
-      nama: 'Daun Mengecil',
-      deskripsi: 'Gangguan fisiologis atau penyakit akibat defisiensi unsur hara mikro (seperti Boron) atau serangan hama/virus yang menyebabkan pertumbuhan daun menjadi mengecil dan tidak berkembang sempurna.',
-      solusi: 'Lakukan aplikasi pupuk mikro Boron (Borate) secara teratur pada tanah atau ketiak pelepah tanaman sawit yang bergejala sesuai dosis anjuran.'
+      nama: 'Busuk Batang Atas (Upper stem rot)',
+      deskripsi: 'Penyakit pembusukan pada batang kelapa sawit 1-2 meter di atas permukaan tanah yang disebabkan oleh infeksi jamur Fomes noxius.',
+      solusi: 'Pangkas pelepah kering secara higienis, olesi luka bekas pangkasan dengan fungisida pelindung, dan hindari pelukaan mekanis pada batang atas.'
+    },
+
+    // 4 Hama Utama (Dari Jurnal Hanif dkk., 2026)
+    {
+      kode: 'H01',
+      nama: 'Hama Tikus (Rattus tiomanicus)',
+      deskripsi: 'Hama vertebrata pengerat yang merusak bibit kelapa sawit, pangkal pelepah, serta memakan buah sawit mentah dan masak hingga merusak inti buah.',
+      solusi: 'Pengendalian Biologis: Memanfaatkan predator alami burung hantu (Tyto alba) 1 unit per 20-25 ha. Sanitasi Lahan: Pembersihan piringan dan tumpukan pelepah sarang tikus. Pengendalian Kimia: Pemasangan umpan racun rodentisida Kumatetralil/Brodifakum.'
+    },
+    {
+      kode: 'H02',
+      nama: 'Hama Rayap (Coptotermes curvignathus)',
+      deskripsi: 'Hama serangga perusak kayu dan jaringan tanaman yang menyerang pangkal batang dan akar kelapa sawit, membuat batang berongga dan pohon mudah tumbang.',
+      solusi: 'Sanitasi dan Pemusnahan Sarang: Pembongkaran sarang rayap di sekitar perakaran. Pengendalian Kimia: Aplikasi termitisida berbahan aktif fipronil atau klorpirifos dengan metode penyiraman 5 liter per pohon.'
+    },
+    {
+      kode: 'H03',
+      nama: 'Hama Ulat Api (Setothosea asigna)',
+      deskripsi: 'Hama ulat pemakan daun kelapa sawit yang sangat rakus, menyebabkan daun berlubang hingga habis tersisa tulang daun/lidi, menurunkan produksi TBS hingga 60%.',
+      solusi: 'Pengendalian Hayati: Pelepasan bioinsektisida virus Cordyceps atau penanaman Turnera subulata. Pengendalian Kimia: Injeksi batang insektisida sistemik acephate 75 SP.'
+    },
+    {
+      kode: 'H04',
+      nama: 'Hama Ulat Kantong (Metisa plana)',
+      deskripsi: 'Hama ulat berkantong yang mengikis dan memakan epidermis daun kelapa sawit dari tajuk bagian bawah hingga daun mengering dan tajuk tampak keabu-abuan, menurunkan produksi hingga 40%.',
+      solusi: 'Pengendalian Manual: Pengutipan kantong ulat pada serangan awal. Pengendalian Biologis: Aplikasi bioinsektisida Bacillus thuringiensis (Bt). Pengendalian Kimia: Injeksi batang dengan insektisida acephate.'
     }
   ]
 
@@ -123,91 +171,105 @@ async function main() {
     })
   }
 
-  // 4. Daftar Aturan Certainty Factor (CF Pakar)
+  // 4. Daftar Aturan Certainty Factor (CF Pakar) - 38 Gejala
   const rules = [
     // P01: Akar (Blast disease)
-    { penyakitKode: 'P01', gejalaKode: 'G01', cf: 1.0 },
-    { penyakitKode: 'P01', gejalaKode: 'G02', cf: 0.6 },
-    { penyakitKode: 'P01', gejalaKode: 'G03', cf: 0.4 },
-    { penyakitKode: 'P01', gejalaKode: 'G04', cf: 0.4 },
-    { penyakitKode: 'P01', gejalaKode: 'G05', cf: 1.0 },
-    { penyakitKode: 'P01', gejalaKode: 'G08', cf: 0.8 },
-    { penyakitKode: 'P01', gejalaKode: 'G11', cf: 0.8 },
-    { penyakitKode: 'P01', gejalaKode: 'G12', cf: 0.8 },
-    { penyakitKode: 'P01', gejalaKode: 'G13', cf: 0.8 },
+    { penyakitKode: 'P01', gejalaKode: 'G01', cf: 0.85 },
+    { penyakitKode: 'P01', gejalaKode: 'G02', cf: 0.60 },
+    { penyakitKode: 'P01', gejalaKode: 'G03', cf: 0.50 },
+    { penyakitKode: 'P01', gejalaKode: 'G08', cf: 0.80 },
+    { penyakitKode: 'P01', gejalaKode: 'G16', cf: 0.95 },
+    { penyakitKode: 'P01', gejalaKode: 'G17', cf: 0.80 },
+    { penyakitKode: 'P01', gejalaKode: 'G22', cf: 0.80 },
 
     // P02: Busuk Pangkal Batang (Ganoderma)
-    { penyakitKode: 'P02', gejalaKode: 'G01', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G02', cf: 0.6 },
-    { penyakitKode: 'P02', gejalaKode: 'G03', cf: 0.8 },
-    { penyakitKode: 'P02', gejalaKode: 'G04', cf: 0.4 },
-    { penyakitKode: 'P02', gejalaKode: 'G05', cf: 0.6 },
-    { penyakitKode: 'P02', gejalaKode: 'G06', cf: 0.2 },
-    { penyakitKode: 'P02', gejalaKode: 'G07', cf: 0.8 },
-    { penyakitKode: 'P02', gejalaKode: 'G08', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G09', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G10', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G11', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G12', cf: 1.0 },
-    { penyakitKode: 'P02', gejalaKode: 'G13', cf: 0.6 },
-    { penyakitKode: 'P02', gejalaKode: 'G16', cf: 0.8 },
+    { penyakitKode: 'P02', gejalaKode: 'G01', cf: 0.90 },
+    { penyakitKode: 'P02', gejalaKode: 'G02', cf: 0.60 },
+    { penyakitKode: 'P02', gejalaKode: 'G03', cf: 0.80 },
+    { penyakitKode: 'P02', gejalaKode: 'G04', cf: 0.40 },
+    { penyakitKode: 'P02', gejalaKode: 'G05', cf: 0.90 },
+    { penyakitKode: 'P02', gejalaKode: 'G06', cf: 0.80 },
+    { penyakitKode: 'P02', gejalaKode: 'G08', cf: 0.90 },
+    { penyakitKode: 'P02', gejalaKode: 'G16', cf: 0.60 },
+    { penyakitKode: 'P02', gejalaKode: 'G17', cf: 0.95 },
+    { penyakitKode: 'P02', gejalaKode: 'G22', cf: 0.70 },
 
     // P03: Busuk Kuncup (Spear rot)
-    { penyakitKode: 'P03', gejalaKode: 'G02', cf: 0.8 },
-    { penyakitKode: 'P03', gejalaKode: 'G05', cf: 0.8 },
-    { penyakitKode: 'P03', gejalaKode: 'G06', cf: 1.0 },
-    { penyakitKode: 'P03', gejalaKode: 'G07', cf: 0.8 },
-    { penyakitKode: 'P03', gejalaKode: 'G08', cf: 0.8 },
-    { penyakitKode: 'P03', gejalaKode: 'G10', cf: 0.6 },
-    { penyakitKode: 'P03', gejalaKode: 'G14', cf: 1.0 },
-    { penyakitKode: 'P03', gejalaKode: 'G15', cf: 1.0 },
-    { penyakitKode: 'P03', gejalaKode: 'G16', cf: 0.4 },
-    { penyakitKode: 'P03', gejalaKode: 'G17', cf: 0.6 },
+    { penyakitKode: 'P03', gejalaKode: 'G02', cf: 0.80 },
+    { penyakitKode: 'P03', gejalaKode: 'G04', cf: 0.90 },
+    { penyakitKode: 'P03', gejalaKode: 'G05', cf: 0.60 },
+    { penyakitKode: 'P03', gejalaKode: 'G06', cf: 0.40 },
+    { penyakitKode: 'P03', gejalaKode: 'G13', cf: 0.70 },
+    { penyakitKode: 'P03', gejalaKode: 'G15', cf: 0.95 },
+    { penyakitKode: 'P03', gejalaKode: 'G16', cf: 0.75 },
 
     // P04: Garis Kuning (Patch yellow)
-    { penyakitKode: 'P04', gejalaKode: 'G01', cf: 0.8 },
-    { penyakitKode: 'P04', gejalaKode: 'G03', cf: 0.6 },
-    { penyakitKode: 'P04', gejalaKode: 'G06', cf: 0.8 },
-    { penyakitKode: 'P04', gejalaKode: 'G07', cf: 0.6 },
-    { penyakitKode: 'P04', gejalaKode: 'G09', cf: 0.8 },
-    { penyakitKode: 'P04', gejalaKode: 'G13', cf: 0.8 },
-    { penyakitKode: 'P04', gejalaKode: 'G18', cf: 0.6 },
-    { penyakitKode: 'P04', gejalaKode: 'G19', cf: 1.0 },
-    { penyakitKode: 'P04', gejalaKode: 'G20', cf: 0.8 },
+    { penyakitKode: 'P04', gejalaKode: 'G01', cf: 0.80 },
+    { penyakitKode: 'P04', gejalaKode: 'G03', cf: 0.60 },
+    { penyakitKode: 'P04', gejalaKode: 'G04', cf: 0.80 },
+    { penyakitKode: 'P04', gejalaKode: 'G05', cf: 0.75 },
+    { penyakitKode: 'P04', gejalaKode: 'G09', cf: 0.90 },
+    { penyakitKode: 'P04', gejalaKode: 'G10', cf: 0.80 },
+    { penyakitKode: 'P04', gejalaKode: 'G12', cf: 0.60 },
+    { penyakitKode: 'P04', gejalaKode: 'G13', cf: 0.60 },
+    { penyakitKode: 'P04', gejalaKode: 'G22', cf: 0.75 },
 
     // P05: Tajuk (Crown disease)
-    { penyakitKode: 'P05', gejalaKode: 'G08', cf: 0.8 },
-    { penyakitKode: 'P05', gejalaKode: 'G10', cf: 0.8 },
-    { penyakitKode: 'P05', gejalaKode: 'G14', cf: 1.0 },
-    { penyakitKode: 'P05', gejalaKode: 'G16', cf: 1.0 },
-    { penyakitKode: 'P05', gejalaKode: 'G20', cf: 0.6 },
-    { penyakitKode: 'P05', gejalaKode: 'G21', cf: 0.6 },
-    { penyakitKode: 'P05', gejalaKode: 'G22', cf: 0.2 },
-    { penyakitKode: 'P05', gejalaKode: 'G23', cf: 0.8 },
+    { penyakitKode: 'P05', gejalaKode: 'G02', cf: 0.80 },
+    { penyakitKode: 'P05', gejalaKode: 'G05', cf: 0.80 },
+    { penyakitKode: 'P05', gejalaKode: 'G06', cf: 0.90 },
+    { penyakitKode: 'P05', gejalaKode: 'G07', cf: 0.80 },
+    { penyakitKode: 'P05', gejalaKode: 'G10', cf: 0.60 },
+    { penyakitKode: 'P05', gejalaKode: 'G11', cf: 0.80 },
+    { penyakitKode: 'P05', gejalaKode: 'G15', cf: 0.85 },
 
-    // P06: Busuk Tandan
-    { penyakitKode: 'P06', gejalaKode: 'G12', cf: 1.0 },
-    { penyakitKode: 'P06', gejalaKode: 'G16', cf: 0.6 },
-    { penyakitKode: 'P06', gejalaKode: 'G17', cf: 1.0 },
-    { penyakitKode: 'P06', gejalaKode: 'G18', cf: 0.6 },
-    { penyakitKode: 'P06', gejalaKode: 'G22', cf: 0.8 },
-    { penyakitKode: 'P06', gejalaKode: 'G24', cf: 1.0 },
-    { penyakitKode: 'P06', gejalaKode: 'G25', cf: 0.2 },
-    { penyakitKode: 'P06', gejalaKode: 'G26', cf: 0.2 },
-    { penyakitKode: 'P06', gejalaKode: 'G27', cf: 0.4 },
-    { penyakitKode: 'P06', gejalaKode: 'G28', cf: 0.8 },
-    { penyakitKode: 'P06', gejalaKode: 'G29', cf: 1.0 },
-    { penyakitKode: 'P06', gejalaKode: 'G30', cf: 0.4 },
-    { penyakitKode: 'P06', gejalaKode: 'G31', cf: 0.2 },
+    // P06: Busuk Tandan (Marasmius)
+    { penyakitKode: 'P06', gejalaKode: 'G06', cf: 0.60 },
+    { penyakitKode: 'P06', gejalaKode: 'G11', cf: 0.80 },
+    { penyakitKode: 'P06', gejalaKode: 'G17', cf: 0.85 },
+    { penyakitKode: 'P06', gejalaKode: 'G23', cf: 0.95 },
+    { penyakitKode: 'P06', gejalaKode: 'G24', cf: 0.75 },
+    { penyakitKode: 'P06', gejalaKode: 'G25', cf: 0.60 },
+    { penyakitKode: 'P06', gejalaKode: 'G26', cf: 0.90 },
+    { penyakitKode: 'P06', gejalaKode: 'G27', cf: 0.80 },
 
-    // P07: Anthracnose (Dari Jurnal BIMASATI)
-    { penyakitKode: 'P07', gejalaKode: 'G06', cf: 0.8 },
-    { penyakitKode: 'P07', gejalaKode: 'G13', cf: 0.6 },
+    // P07: Anthracnose
+    { penyakitKode: 'P07', gejalaKode: 'G04', cf: 0.85 },
+    { penyakitKode: 'P07', gejalaKode: 'G12', cf: 0.70 },
+    { penyakitKode: 'P07', gejalaKode: 'G14', cf: 0.90 },
 
-    // P08: Daun Mengecil (Dari Jurnal BIMASATI)
-    { penyakitKode: 'P08', gejalaKode: 'G07', cf: 0.8 },
-    { penyakitKode: 'P08', gejalaKode: 'G13', cf: 0.8 },
-    { penyakitKode: 'P08', gejalaKode: 'G20', cf: 0.8 }
+    // P08: Busuk Batang Atas (Upper stem rot)
+    { penyakitKode: 'P08', gejalaKode: 'G01', cf: 0.75 },
+    { penyakitKode: 'P08', gejalaKode: 'G05', cf: 0.70 },
+    { penyakitKode: 'P08', gejalaKode: 'G12', cf: 0.65 },
+    { penyakitKode: 'P08', gejalaKode: 'G18', cf: 0.90 },
+    { penyakitKode: 'P08', gejalaKode: 'G22', cf: 0.85 },
+
+    // H01: Hama Tikus
+    { penyakitKode: 'H01', gejalaKode: 'G22', cf: 0.90 },
+    { penyakitKode: 'H01', gejalaKode: 'G29', cf: 0.70 },
+    { penyakitKode: 'H01', gejalaKode: 'G30', cf: 0.75 },
+    { penyakitKode: 'H01', gejalaKode: 'G31', cf: 0.80 },
+    { penyakitKode: 'H01', gejalaKode: 'G32', cf: 0.85 },
+
+    // H02: Hama Rayap
+    { penyakitKode: 'H02', gejalaKode: 'G19', cf: 0.85 },
+    { penyakitKode: 'H02', gejalaKode: 'G20', cf: 0.70 },
+    { penyakitKode: 'H02', gejalaKode: 'G21', cf: 0.90 },
+
+    // H03: Hama Ulat Api
+    { penyakitKode: 'H03', gejalaKode: 'G28', cf: 0.70 },
+    { penyakitKode: 'H03', gejalaKode: 'G33', cf: 0.80 },
+    { penyakitKode: 'H03', gejalaKode: 'G34', cf: 0.90 },
+
+    // H04: Hama Ulat Kantong
+    { penyakitKode: 'H04', gejalaKode: 'G02', cf: 0.65 },
+    { penyakitKode: 'H04', gejalaKode: 'G12', cf: 0.50 },
+    { penyakitKode: 'H04', gejalaKode: 'G28', cf: 0.60 },
+    { penyakitKode: 'H04', gejalaKode: 'G35', cf: 0.90 },
+    { penyakitKode: 'H04', gejalaKode: 'G36', cf: 0.90 },
+    { penyakitKode: 'H04', gejalaKode: 'G37', cf: 0.85 },
+    { penyakitKode: 'H04', gejalaKode: 'G38', cf: 0.75 },
   ]
 
   // Bersihkan data rules lama agar tidak terjadi duplikasi unik
@@ -228,7 +290,7 @@ async function main() {
     }
   }
 
-  console.log('✅ Database Seeding selesai! Seluruh basis data dari 3 Jurnal PDF berhasil dimigrasikan.')
+  console.log('✅ Database Seeding selesai! Sebanyak 38 Gejala dan 12 Diagnosis HPT berhasil dimigrasikan.')
 }
 
 main()

@@ -9,17 +9,22 @@ export async function POST(request: Request) {
 
     // 1. Ambil semua data pendukung dari DB
     const [rules, diseases] = await Promise.all([
-      prisma.rule.findMany(),
+      prisma.rule.findMany({
+        include: {
+          gejala: true,
+          penyakit: true,
+        }
+      }),
       prisma.penyakit.findMany()
     ])
 
     // Format data DB ke format yang diminta engine
     const formattedRules = rules.map(r => ({
       id: r.id,
-      code: `R-${r.id}`,
-      title: `Rule ${r.id}`,
+      code: `${r.gejala.kode}→${r.penyakit.kode}`,
+      title: `${r.gejala.kode} - ${r.gejala.nama}`,
       active: true,
-      antecedents: [{ symptomId: r.gejalaId, minConfidence: 0.1 }],
+      antecedents: [{ symptomId: r.gejalaId, minConfidence: 0.05 }],
       consequents: [{ diseaseId: r.penyakitId, cf: r.cfPakar }]
     }))
 
