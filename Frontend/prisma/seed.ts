@@ -28,47 +28,47 @@ async function main() {
 
   // 2. Daftar Tepat 38 Gejala Fisik Terpadu (Penyakit & Hama)
   const gejalaList = [
-    // Bagian Daun & Pelepah (G01 - G14)
-    { kode: 'G01', nama: 'Daun menjadi layu / anak daun terkulai layu' },
-    { kode: 'G02', nama: 'Daun mengalami klorosis (menguning / hijau pucat)' },
+    // Bagian Daun & Pelepah
+    { kode: 'G01', nama: 'Daun menjadi layu' },
+    { kode: 'G02', nama: 'Daun mengalami klorosis menguning atau hijau pucat' },
     { kode: 'G03', nama: 'Daun timbul bercak-bercak lonjong berwarna kuning' },
     { kode: 'G04', nama: 'Daun muda berwarna cokelat gelap hingga nekrosis di ujungnya' },
-    { kode: 'G05', nama: 'Pelepah daun patah / sengkleh dan menggantung pada batang' },
-    { kode: 'G06', nama: 'Pelepah bengkok / melengkung menunduk ke bawah di bagian tengahnya' },
+    { kode: 'G05', nama: 'Pelepah daun patah atau sengkleh dan menggantung pada batang' },
+    { kode: 'G06', nama: 'Pelepah bengkok atau melengkung menunduk ke bawah di bagian tengahnya' },
     { kode: 'G07', nama: 'Pelepah berubah warna menjadi cokelat kemerahan' },
-    { kode: 'G08', nama: 'Daun muda (tombak) tidak membuka total / tegak melengkung' },
+    { kode: 'G08', nama: 'Daun muda tidak membuka total atau tegak melengkung' },
     { kode: 'G09', nama: 'Bercak kuning pada daun dengan bagian tengah berwarna cokelat' },
-    { kode: 'G10', nama: 'Daun berukuran kecil / tajuk baru tumbuh kerdil dan kaku' },
-    { kode: 'G11', nama: 'Daun sobek-sobek / helaian daun tidak berkembang normal' },
-    { kode: 'G12', nama: 'Daun mengalami dehidrasi berat / mengering kecokelatan' },
-    { kode: 'G13', nama: 'Daun atau pelepah gugur/rontok sebelum waktunya' },
+    { kode: 'G10', nama: 'Daun berukuran kecil atau tajuk baru tumbuh kerdil dan kaku' },
+    { kode: 'G11', nama: 'Daun sobek-sobek atau helaian daun tidak berkembang normal' },
+    { kode: 'G12', nama: 'Daun mengalami dehidrasi berat atau mengering kecokelatan' },
+    { kode: 'G13', nama: 'Daun atau pelepah gugur atau rontok sebelum waktunya' },
     { kode: 'G14', nama: 'Timbul bercak-bercak hitam atau cokelat pada daun bibit muda' },
 
-    // Bagian Kuncup, Titik Tumbuh, Batang & Akar (G15 - G22)
-    { kode: 'G15', nama: 'Kuncup/titik tumbuh membusuk basah dan mengeluarkan aroma bau busuk' },
+    // Bagian Kuncup, Titik Tumbuh, Batang & Akar
+    { kode: 'G15', nama: 'Kuncup atau titik tumbuh membusuk basah dan mengeluarkan aroma bau busuk' },
     { kode: 'G16', nama: 'Akar tanaman menjadi lunak, basah, dan jaringan korteks hancur membusuk' },
-    { kode: 'G17', nama: 'Tumbuh badan buah jamur (basidiokarp) kipas pada pangkal batang atau akar' },
-    { kode: 'G18', nama: 'Batang bagian atas (1-2 meter di atas tanah) membusuk dan patah (upper stem rot)' },
+    { kode: 'G17', nama: 'Tumbuh badan buah jamur kipas pada pangkal batang atau akar' },
+    { kode: 'G18', nama: 'Batang bagian atas (1-2 meter di atas tanah) membusuk dan patah' },
     { kode: 'G19', nama: 'Batang tampak berongga dan terdapat serbuk kayu halus di pangkal batang' },
     { kode: 'G20', nama: 'Lubang-lubang gerekan kecil pada batang kelapa sawit' },
-    { kode: 'G21', nama: 'Ditemukan sarang rayap / lorong tanah di sekitar perakaran dan pangkal batang' },
-    { kode: 'G22', nama: 'Tanaman roboh / tumbang / mati mendadak' },
+    { kode: 'G21', nama: 'Ditemukan sarang rayap atau lorong tanah di sekitar perakaran dan pangkal batang' },
+    { kode: 'G22', nama: 'Tanaman roboh atau tumbang atau mati mendadak' },
 
-    // Bagian Bunga, Buah & Produktivitas (G23 - G28)
-    { kode: 'G23', nama: 'Rizomorf jamur berwarna putih / miselium menyelimuti tandan buah' },
+    // Bagian Bunga, Buah & Produktivitas
+    { kode: 'G23', nama: 'Rizomorf jamur berwarna putih atau miselium menyelimuti tandan buah' },
     { kode: 'G24', nama: 'Pangkal buah membusuk basah dan tandan buah rusak berbau busuk' },
     { kode: 'G25', nama: 'Buah menjadi keriput, kering, dan gagal berkembang' },
-    { kode: 'G26', nama: 'Warna buah berubah kehitaman dan biji / brondolan rontok prematur' },
-    { kode: 'G27', nama: 'Tandan bunga atau bunga tombak tidak membuka / pembentukan bunga terhambat' },
-    { kode: 'G28', nama: 'Penurunan drastis produksi TBS (Tandan Buah Segar) mencapai 40% - 60%' },
+    { kode: 'G26', nama: 'Warna buah berubah kehitaman dan biji atau brondolan rontok prematur' },
+    { kode: 'G27', nama: 'Tandan bunga atau bunga tombak tidak membuka atau pembentukan bunga terhambat' },
+    { kode: 'G28', nama: 'Penurunan drastis produksi Tandan Buah Segar mencapai 40% - 60%' },
 
-    // Gejala Khusus 4 Hama (G29 - G38 dari Jurnal Hanif dkk., 2026)
+    // Gejala Khusus 4 Hama
     { kode: 'G29', nama: 'Kerusakan pada bibit kelapa sawit akibat gigitan hama pengerat' },
     { kode: 'G30', nama: 'Bekas keratan gigi pengerat pada pangkal pelepah tanaman' },
-    { kode: 'G31', nama: 'Bekas gigitan pengerat pada buah mentah/masak hingga merusak inti sawit' },
+    { kode: 'G31', nama: 'Bekas gigitan pengerat pada buah mentah atau masak hingga merusak inti sawit' },
     { kode: 'G32', nama: 'Tanaman kelapa sawit mati akibat pengeratan pada titik tumbuh bibit' },
     { kode: 'G33', nama: 'Helaian daun berlubang-lubang akibat gigitan ulat pemakan daun' },
-    { kode: 'G34', nama: 'Kerusakan parah pada daun bagian bawah tajuk hingga kehilangan >80% daun' },
+    { kode: 'G34', nama: 'Kerusakan parah pada daun bagian bawah tajuk hingga kehilangan lebih dari 80% daun' },
     { kode: 'G35', nama: 'Helaian daun terkikis habis hingga hanya tersisa tulang lidi (tajuk bawah abu-abu)' },
     { kode: 'G36', nama: 'Daun tajuk bagian bawah tampak kering berwarna abu-abu kusam' },
     { kode: 'G37', nama: 'Terdapat kantong-kantong ulat menggantung pada permukaan bawah pelepah' },
@@ -135,7 +135,7 @@ async function main() {
       solusi: 'Pangkas pelepah kering secara higienis, olesi luka bekas pangkasan dengan fungisida pelindung, dan hindari pelukaan mekanis pada batang atas.'
     },
 
-    // 4 Hama Utama (Dari Jurnal Hanif dkk., 2026)
+    // 4 Hama Utama
     {
       kode: 'H01',
       nama: 'Hama Tikus (Rattus tiomanicus)',
