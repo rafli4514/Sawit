@@ -13,11 +13,24 @@ export function SelectedSymptomRow({ symptom, confidence, onConfidenceChange, on
   return (
     <div className="flex flex-col gap-2 p-3 rounded-xl border border-slate-100 bg-white shadow-sm transition-all">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-slate-900 leading-tight">
-            {symptom.code} - {symptom.label}
-          </span>
-          <span className="text-[10px] text-slate-400 font-medium mt-0.5">{symptom.category}</span>
+        <div className="flex items-center gap-2.5 min-w-0">
+          {symptom.imageUrl ? (
+            <img
+              src={symptom.imageUrl}
+              alt={symptom.label}
+              className="h-10 w-10 object-cover rounded-lg flex-shrink-0 border border-slate-100 shadow-sm"
+            />
+          ) : (
+            <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0 text-sm">
+              🌿
+            </div>
+          )}
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-slate-900 leading-tight truncate">
+              {symptom.code} - {symptom.label}
+            </span>
+            <span className="text-[10px] text-slate-400 font-medium mt-0.5">{symptom.category}</span>
+          </div>
         </div>
         <button
           onClick={() => onRemove(symptom.id)}
